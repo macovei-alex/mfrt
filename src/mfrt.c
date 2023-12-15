@@ -5,15 +5,21 @@
 
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        logi(ERR, "Usage: mfrt <filename>");
+        return 1;
+    }
+
     control_t control = {
         NULL,
         NULL,
-        "temp\\src.bf",
+        "temp\\src.frt",
         "temp\\src.c",
         get_file_name(argc, argv),
         get_options(argc, argv)};
 
-    if (setup(argc, argv, &control))
+    if (setup(&control))
         return 1;
 
     if (make_c_code(&control))

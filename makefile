@@ -22,6 +22,8 @@ all: $(OBJS)
 
 clean: $(OBJS)
 	del $(OBJS)
-
+	del temp\src.c
+	del temp\src.frt
+	
 remove: clean
 	del bin\$(TARGET).exe

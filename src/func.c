@@ -3,39 +3,29 @@
 #include <string.h>
 #include <windows.h>
 
-int setup(int argc, char *argv[], control_t *control)
+int setup(control_t *control)
 {
-    if (argc < 2)
-    {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        return 1;
-    }
-
     char command[512];
-
-    strcpy(command, "copy ");
-    strcat(command, control->file_name);
-    strcat(command, " ");
-    strcat(command, control->temp_bf_name);
+    sprintf(command, "copy %s %s", control->file_name, control->temp_frt_name);
 
     if (system(command) != 0)
     {
-        fprintf(stderr, "Error copying file\n");
+        logi(ERR, "Could not copy the frt file");
         return 1;
     }
 
-    control->bffd = fopen(control->temp_bf_name, "rb");
-    if (control->bffd == NULL)
+    control->frtfd = fopen(control->temp_frt_name, "rb");
+    if (control->frtfd == NULL)
     {
-        fprintf(stderr, "Error opening file\n");
+        logi(ERR, "Could not open the copied file");
         return 1;
     }
 
     control->cfd = fopen(control->temp_c_name, "wb");
     if (control->cfd == NULL)
     {
-        fprintf(stderr, "Error opening file\n");
-        fclose(control->bffd);
+        logi(ERR, "Could not open the C file");
+        fclose(control->frtfd);
         return 1;
     }
 
@@ -44,14 +34,14 @@ int setup(int argc, char *argv[], control_t *control)
 
 int before_close(control_t *control)
 {
-    if (remove(control->temp_bf_name) != 0)
+    if (remove(control->temp_frt_name) != 0)
     {
-        fprintf(stderr, "Error deleting the temporary bf file\n");
+        logi(ERR, "Could not delete the temporary frt file");
         return 1;
     }
     if (remove(control->temp_c_name) != 0)
     {
-        fprintf(stderr, "Error deleting the temporary c file\n");
+        logi(ERR, "Could not delete the C file");
         return 1;
     }
 
@@ -112,15 +102,23 @@ void print(control_t *control, const char *message, size_t tab_count)
     free(messageWithTabs);
 }
 
+void logi(LogLevel level, const char *message)
+{
+    if (level == WARNING)
+        fprintf(stderr, "[Warning]: %s\n", message);
+    else if (level == ERR)
+        fprintf(stderr, "[Error]: %s\n", message);
+}
+
 size_t getInt(control_t *control)
 {
     char c;
     size_t num = 0;
-    while ((c = fgetc(control->bffd)) != '|')
+    while ((c = fgetc(control->frtfd)) != '|')
     {
         if (c < '0' || c > '9')
         {
-            fprintf(stderr, "Warning: Invalid character jumped over: %c; expecting a digit or \'|\'\n", c);
+            logi(ERR, "Invalid character jumped over; expecting a digit or \'|\'\n");
             break;
         }
         else
@@ -142,7 +140,7 @@ int make_c_code(control_t *control)
     size_t num;
     char forLoop[40];
 
-    while ((c = fgetc(control->bffd)) != EOF)
+    while ((c = fgetc(control->frtfd)) != EOF)
     {
         switch (c)
         {
@@ -163,7 +161,7 @@ int make_c_code(control_t *control)
             break;
         case '@':
             print(control, "for(int i = lowest; i <= highest; i++)\n", tab_count);
-            print(control, "printf(\"%%d \", *ptr);\n", tab_count + 1);
+            print(control, "printf(\"%%d \", array[i]);\n", tab_count + 1);
             print(control, "putchar(\'\\n\');\n", tab_count);
             break;
         case '.':
@@ -171,7 +169,7 @@ int make_c_code(control_t *control)
             break;
         case '#':
             print(control, "for(int i = lowest; i <= highest; i++)\n", tab_count);
-            print(control, "putchar((char)(*ptr));\n", tab_count + 1);
+            print(control, "putchar((char)(array[i]));\n", tab_count + 1);
         case '\\':
             print(control, "putchar(\\n);\n", tab_count);
             break;
@@ -192,18 +190,18 @@ int make_c_code(control_t *control)
                 tab_count--;
             }
             else
-                fprintf(stderr, "Warning: Unmatched \']\'\n");
+                logi(ERR, "Warning: Unmatched \']\'\n");
             break;
         case '/':
-            c = fgetc(control->bffd);
-            while ((c = fgetc(control->bffd)) != '\n')
+            c = fgetc(control->frtfd);
+            while ((c = fgetc(control->frtfd)) != '\n' && c != EOF)
                 ;
             break;
         case '\n':
         case '\r':
             break;
         default:
-            fprintf(stderr, "Warning: Invalid character: %c\n", c);
+            logi(ERR, "Invalid character\n");
             break;
         }
     }
@@ -211,12 +209,12 @@ int make_c_code(control_t *control)
     {
         print(control, "}\n", tab_count - 1);
         tab_count--;
-        fprintf(stderr, "Warning: Unmatched \'[\' closed automatically\n");
+        logi(WARNING, "Unmatched \'[\' closed automatically");
     }
 
     print(control, "\n\treturn 0;\n}\n", 0);
 
-    fclose(control->bffd);
+    fclose(control->frtfd);
     fclose(control->cfd);
 
     return 0;
@@ -229,7 +227,7 @@ int compile_command(control_t *control)
 
     char exe_file[256];
     strcpy(exe_file, control->file_name);
-    exe_file[strlen(exe_file) - 3] = '\0';
+    exe_file[strlen(exe_file) - 4] = '\0';
     strcat(exe_file, ".exe");
 
     strcpy(command, "gcc ");
@@ -240,7 +238,7 @@ int compile_command(control_t *control)
 
     if (system(command) != 0)
     {
-        fprintf(stderr, "Error compiling the temporary c file\n");
+        logi(ERR, "Could not compile the temporary C file");
         return 1;
     }
     return 0;
@@ -252,13 +250,13 @@ int run(const char *file_name)
     command[0] = '\0';
 
     strcpy(command, file_name);
-    command[strlen(command) - 3] = '\0';
+    command[strlen(command) - 4] = '\0';
 
-    strcat(command, ".exe ");
+    strcat(command, ".exe");
 
     if (system(command) != 0)
     {
-        fprintf(stderr, "Error running the temporary c file\n");
+        logi(ERR, "Could not run the executable");
         return 1;
     }
 
