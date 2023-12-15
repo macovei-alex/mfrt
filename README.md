@@ -30,16 +30,16 @@ int main()
 The C code will then be generated based on the frt instructions. There is no way to declare variables, functions or anything of this kind.
 
 ## Language syntax:
-    1. '<' and '>' for moving around in the integer array to the left and right, respectively
-    2. '+' and '-' for manipulating the value at the current location
-    3. '_' for printing the integer at the current position as an integer (together with the newline character)
-    4. '.' for printing the integer at the current position as a character (without the newline character)
-    5. '@' for printing every integer between 'lowest' and 'highest' (every position that has been accessed at least once) as integers, spaced using a space and with a newline character at the end
-    6. '#' for printing every integer between 'lowest' and 'highest' (every position that has been accessed at least once) as characters, not spaced and without a newline chacarcter at the end
-    7. '\' for printing the newline character
-    8. ',' for reading an integer at the current position
-    9. '[' and ']' for defining a for loop
-        - the '[' character will insert the beginning of the for loop
-        - the ']' will terminat the loop
-        - the first characters after the '[' are digits of the number for the for loop condition ('for(size_t i = 0; i < number; i++)')
-        - after the number, the character '|' will be inserted to signify the begging of the code inside the for loop
+1. '<' and '>' for moving around in the integer array to the left and right, respectively
+2. '+' and '-' for manipulating the value at the current location
+3. '_' for printing the integer at the current position as an integer (together with the newline character)
+4. '.' for printing the integer at the current position as a character (without the newline character)
+5. '@' for printing every integer between 'lowest' and 'highest' (every position that has been accessed at least once) as integers, spaced using a space and with a newline character at the end
+6. '#' for printing every integer between 'lowest' and 'highest' (every position that has been accessed at least once) as characters, not spaced and without a newline chacarcter at the end
+7. '\' for printing the newline character
+8. ',' for reading an integer at the current position
+9. '[' and ']' for defining a for loop
+- the '[' character will insert the beginning of the for loop
+- the ']' will terminat the loop
+- the first characters after the '[' are digits of the number for the for loop condition ('for(size_t i = 0; i < number; i++)')
+- after the number, the character '|' will be inserted to signify the begging of the code inside the for loop
