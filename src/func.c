@@ -171,7 +171,7 @@ int make_c_code(control_t *control)
             print(control, "for(int i = lowest; i <= highest; i++)\n", tab_count);
             print(control, "putchar((char)(array[i]));\n", tab_count + 1);
         case '\\':
-            print(control, "putchar(\\n);\n", tab_count);
+            print(control, "putchar(\'\\n\');\n", tab_count);
             break;
         case ',':
             print(control, "scanf(\"%%d\", ptr);\n", tab_count);
@@ -199,6 +199,7 @@ int make_c_code(control_t *control)
             break;
         case '\n':
         case '\r':
+        case ' ':
             break;
         default:
             logi(ERR, "Invalid character\n");
