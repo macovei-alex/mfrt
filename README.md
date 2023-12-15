@@ -39,7 +39,7 @@ The C code will then be generated based on the frt instructions. There is no way
 7. '\' for printing the newline character
 8. ',' for reading an integer at the current position
 9. '[' and ']' for defining a for loop
-- the '[' character will insert the beginning of the for loop
-- the ']' will terminat the loop
-- the first characters after the '[' are digits of the number for the for loop condition ('for(size_t i = 0; i < number; i++)')
-- after the number, the character '|' will be inserted to signify the begging of the code inside the for loop
+    - the '[' character will insert the beginning of the for loop
+    - the ']' will terminat the loop
+    - the first characters after the '[' are digits of the number for the for loop condition ('for(size_t i = 0; i < number; i++)')
+    - after the number, the character '|' will be inserted to signify the begging of the code inside the for loop
