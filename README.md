@@ -30,7 +30,7 @@ int main()
 The C code will then be generated based on the frt instructions. There is no way to declare variables, functions or anything of this kind.
 
 ## Language syntax:
-1. '<' and '>' for moving around in the integer array to the left and right, respectively
+1. '<' and '>' for moving around in the integer array to the left and right, respectively; this movement will update the 'lowest' and 'highest' variables if necessary using the macros defined above
 2. '+' and '-' for manipulating the value at the current location
 3. '_' for printing the integer at the current position as an integer (together with the newline character)
 4. '.' for printing the integer at the current position as a character (without the newline character)
