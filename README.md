@@ -6,8 +6,8 @@ The translator is written in C for Windows platforms. It translates the brainfuc
 
 ## Compilation syntax:
 The command 'make' is run from the terminal to build the translator. After that, a file with the '.bf' can be translated to C code using the 'mfrt' command. Compilation options:
-    1. '-v' verbose; the C code generated will be printed in the terminal at generation
-    2. '-r' run; runs the executable generated after compiling with gcc the C code generated with the translator
+1. '-v' verbose; the C code generated will be printed in the terminal at generation
+2. '-r' run; runs the executable generated after compiling with gcc the C code generated with the translator
 
 ## Language description:
 The first few lines of code will be generated no matter what. They look like this:
