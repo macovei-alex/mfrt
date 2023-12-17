@@ -11,6 +11,12 @@ typedef struct control_t
     char *options;
 } control_t;
 
+typedef struct logger_t
+{
+    size_t row, col;
+    char buffer[1024];
+} logger_t;
+
 typedef enum LogLevel
 {
     WARNING,

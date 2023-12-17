@@ -3,6 +3,8 @@
 #include <string.h>
 #include <windows.h>
 
+logger_t logger = {0, 0, ""};
+
 int setup(control_t *control)
 {
     char command[512];
@@ -118,7 +120,8 @@ size_t getInt(control_t *control)
     {
         if (c < '0' || c > '9')
         {
-            logi(ERR, "Invalid character jumped over; expecting a digit or \'|\'\n");
+            sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over; expecting a digit or \'|\'\n", c, logger.row, logger.col);
+            logi(ERR, logger.buffer);
             break;
         }
         else
@@ -190,27 +193,33 @@ int make_c_code(control_t *control)
                 tab_count--;
             }
             else
-                logi(ERR, "Warning: Unmatched \']\'\n");
+                logi(ERR, "Unmatched \']\' jumped over\n");
             break;
         case '/':
             c = fgetc(control->frtfd);
-            while ((c = fgetc(control->frtfd)) != '\n' && c != EOF)
-                ;
+            while (c != '\n' && c != '/' && c != EOF)
+                c = fgetc(control->frtfd);
             break;
         case '\n':
+            logger.row++;
+            break;
         case '\r':
+            logger.col = -1;
+            break;
         case ' ':
             break;
         default:
-            logi(ERR, "Invalid character\n");
+            sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over\n", c, logger.row, logger.col);
+            logi(ERR, logger.buffer);
             break;
         }
+        logger.col++;
     }
     while (tab_count > 1)
     {
         print(control, "}\n", tab_count - 1);
         tab_count--;
-        logi(WARNING, "Unmatched \'[\' closed automatically");
+        logi(ERR, "Unmatched \'[\' closed automatically");
     }
 
     print(control, "\n\treturn 0;\n}\n", 0);
