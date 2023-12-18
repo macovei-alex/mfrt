@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
     control_t control = {
         NULL,
         NULL,
-        "temp\\src.frt",
-        "temp\\src.c",
+        NULL,
+        NULL,
         get_file_name(argc, argv),
         get_options(argc, argv)};
 

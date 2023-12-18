@@ -7,6 +7,8 @@ logger_t logger = {0, 0, ""};
 
 int setup(control_t *control)
 {
+    setPaths(control, false);
+
     char command[512];
     sprintf(command, "copy %s %s", control->file_name, control->temp_frt_name);
 
@@ -34,6 +36,40 @@ int setup(control_t *control)
     return 0;
 }
 
+void setPaths(control_t *control, bool doPrint)
+{
+    char execPath[MAX_PATH] = {0};
+    GetModuleFileName(NULL, execPath, sizeof(execPath));
+
+    if (doPrint)
+        printf("EXEC_PATH: %s\n", execPath);
+
+    // Remove the executable name to get the directory
+    char *lastBackslash;
+    if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
+        *lastBackslash = '\0';
+    if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
+        *lastBackslash = '\0';
+
+    char tempDir[MAX_PATH];
+    sprintf(tempDir, "%s\\temp", execPath);
+
+    if (doPrint)
+        printf("TEMP_DIR: %s\n", tempDir);
+
+    control->temp_frt_name = malloc(MAX_PATH);
+    sprintf(control->temp_frt_name, "%s\\src.frt", tempDir);
+
+    if (doPrint)
+        printf("TEMP_FRT_PATH: %s\n", control->temp_frt_name);
+
+    control->temp_c_name = malloc(MAX_PATH);
+    sprintf(control->temp_c_name, "%s\\src.c", tempDir);
+
+    if (doPrint)
+        printf("TEMP_C_PATH: %s\n", control->temp_c_name);
+}
+
 int before_close(control_t *control)
 {
     if (remove(control->temp_frt_name) != 0)
@@ -54,7 +90,7 @@ int before_close(control_t *control)
 
 char *get_options(int argc, char *argv[])
 {
-    char *options = malloc(256);
+    char *options = malloc(MAX_PATH);
     options[0] = '\0';
 
     for (int i = 1; i < argc; i++)
@@ -71,7 +107,7 @@ char *get_options(int argc, char *argv[])
 
 char *get_file_name(int argc, char *argv[])
 {
-    char *file_name = malloc(256);
+    char *file_name = malloc(MAX_PATH);
     file_name[0] = '\0';
 
     for (int i = 1; i < argc; i++)

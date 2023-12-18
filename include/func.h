@@ -2,11 +2,12 @@
 #define FUNC_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct control_t
 {
     FILE *frtfd, *cfd;
-    const char *temp_frt_name, *temp_c_name;
+    char *temp_frt_name, *temp_c_name;
     char *file_name;
     char *options;
 } control_t;
@@ -24,6 +25,7 @@ typedef enum LogLevel
 } LogLevel;
 
 int setup(control_t *control);
+void setPaths(control_t *control, bool doPrint);
 int before_close(control_t *control);
 char *get_options(int argc, char *argv[]);
 char *get_file_name(int argc, char *argv[]);
