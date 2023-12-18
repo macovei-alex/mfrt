@@ -2,4 +2,4 @@
 *.exe
 bin/
 .vscode/
-temp/
+temp/*
