@@ -11,13 +11,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    control_t control = {
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        get_file_name(argc, argv),
-        get_options(argc, argv)};
+    control_t control;
+    control.file_name = get_file_name(argc, argv);
+    control.options = get_options(argc, argv);
 
     if (setup(&control))
         return 1;
