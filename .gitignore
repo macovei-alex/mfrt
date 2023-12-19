@@ -1,5 +1,5 @@
 *.o
 *.exe
-bin/*
+bin/*[^.gitkeep]
 .vscode/
-temp/*
+temp/*[^.gitkeep]
