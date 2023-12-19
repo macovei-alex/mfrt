@@ -16,6 +16,7 @@ TARGET := mfrt
 # Targets
 all: $(OBJS)
 	$(CC) $(CFLAGS) -o ..\bin\$(TARGET) ..\src\$(TARGET).c $(OBJS)
+	make clean
 
 temp\%.o: src\%.c $(HDRS)
 	$(CC) $(CFLAGS) -c $< -o $@
