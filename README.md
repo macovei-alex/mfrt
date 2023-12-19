@@ -43,3 +43,6 @@ The C code will then be generated based on the frt instructions. There is no way
     - the ']' will terminat the loop
     - the first characters after the '[' are digits of the number for the for loop condition ('for(size_t i = 0; i < number; i++)')
     - after the number, the character '|' will be inserted to signify the begging of the code inside the for loop
+
+## Requirements
+To compile this program you need the MinGW compiler for C (and the make executable that should be included). You compile and link all the necessary files by running the make command inside the build directory. If the build is successful you shoudl see the mfrt.exe program in the bin directory.
