@@ -7,37 +7,37 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        logi(ERR, "Usage: mfrt <filename>");
+        logMessage(ERR, "Usage: mfrt <filename>");
         return 1;
     }
 
-    control_t control;
-    control.file_name = get_file_name(argc, argv);
-    control.options = get_options(argc, argv);
+    InfoUnit info;
+    info.inputFRT = getInputFile(argc, argv);
+    info.options = getOptions(argc, argv);
 
-    if (setup(&control))
+    if (setup(&info))
         return 1;
 
-    if (make_c_code(&control))
+    if (writeC(&info))
     {
-        before_close(&control);
+        beforeClose(&info);
         return 1;
     }
 
-    if (compile_command(&control))
+    if (compileCommand(&info))
     {
-        before_close(&control);
+        beforeClose(&info);
         return 1;
     }
 
-    if (strstr(control.options, "-r") != NULL)
-        if (run(control.file_name))
+    if (strstr(info.options, "-r") != NULL)
+        if (executeProgram(info.inputFRT))
         {
-            before_close(&control);
+            beforeClose(&info);
             return 1;
         }
 
-    if (before_close(&control))
+    if (beforeClose(&info))
         return 1;
 
     return 0;

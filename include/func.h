@@ -4,19 +4,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef struct control_t
+typedef struct InfoUnit
 {
-    FILE *frtfd, *cfd;
-    char *temp_frt_name, *temp_c_name;
-    char *file_name;
+    FILE *frtFD, *cFD;
+    char *tempFRT, *tempC;
+    char *inputFRT;
     char *options;
-} control_t;
+} InfoUnit;
 
-typedef struct logger_t
+typedef struct Logger
 {
     size_t row, col;
     char buffer[1024];
-} logger_t;
+} Logger;
 
 typedef enum LogLevel
 {
@@ -24,16 +24,16 @@ typedef enum LogLevel
     ERR
 } LogLevel;
 
-int setup(control_t *control);
-void setPaths(control_t *control, bool doPrint);
-int before_close(control_t *control);
-char *get_options(int argc, char *argv[]);
-char *get_file_name(int argc, char *argv[]);
-void print(control_t *control, const char *message, size_t tab_count);
-void logi(LogLevel level, const char *message);
-size_t getInt(control_t *control);
-int make_c_code(control_t *control);
-int compile_command(control_t *control);
-int run(const char *file_name);
+int setup(InfoUnit *info);
+void setPaths(InfoUnit *info, bool doPrint);
+int beforeClose(InfoUnit *info);
+char *getOptions(int argc, char *argv[]);
+char *getInputFile(int argc, char *argv[]);
+void print(InfoUnit *info, const char *message, size_t tabCount);
+void logMessage(LogLevel level, const char *message);
+size_t getInt(InfoUnit *info);
+int writeC(InfoUnit *info);
+int compileCommand(InfoUnit *info);
+int executeProgram(const char *inputFile);
 
 #endif // FUNC_H

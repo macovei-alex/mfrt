@@ -3,40 +3,40 @@
 #include <string.h>
 #include <windows.h>
 
-logger_t logger = {0, 0, ""};
+Logger logger = {0, 0, ""};
 
-int setup(control_t *control)
+int setup(InfoUnit *info)
 {
-    setPaths(control, false);
+    setPaths(info, false);
 
     char command[512];
-    sprintf(command, "copy %s %s", control->file_name, control->temp_frt_name);
+    sprintf(command, "copy %s %s", info->inputFRT, info->tempFRT);
 
     if (system(command) != 0)
     {
-        logi(ERR, "Could not copy the frt file");
+        logMessage(ERR, "Could not copy the frt file");
         return 1;
     }
 
-    control->frtfd = fopen(control->temp_frt_name, "rb");
-    if (control->frtfd == NULL)
+    info->frtFD = fopen(info->tempFRT, "rb");
+    if (info->frtFD == NULL)
     {
-        logi(ERR, "Could not open the copied file");
+        logMessage(ERR, "Could not open the copied file");
         return 1;
     }
 
-    control->cfd = fopen(control->temp_c_name, "wb");
-    if (control->cfd == NULL)
+    info->cFD = fopen(info->tempC, "wb");
+    if (info->cFD == NULL)
     {
-        logi(ERR, "Could not open the C file");
-        fclose(control->frtfd);
+        logMessage(ERR, "Could not open the C file");
+        fclose(info->frtFD);
         return 1;
     }
 
     return 0;
 }
 
-void setPaths(control_t *control, bool doPrint)
+void setPaths(InfoUnit *info, bool doPrint)
 {
     char execPath[MAX_PATH] = {0};
     GetModuleFileName(NULL, execPath, sizeof(execPath));
@@ -57,38 +57,38 @@ void setPaths(control_t *control, bool doPrint)
     if (doPrint)
         printf("TEMP_DIR: %s\n", tempDir);
 
-    control->temp_frt_name = malloc(MAX_PATH);
-    sprintf(control->temp_frt_name, "%s\\src.frt", tempDir);
+    info->tempFRT = malloc(MAX_PATH);
+    sprintf(info->tempFRT, "%s\\src.frt", tempDir);
 
     if (doPrint)
-        printf("TEMP_FRT_PATH: %s\n", control->temp_frt_name);
+        printf("TEMP_FRT_PATH: %s\n", info->tempFRT);
 
-    control->temp_c_name = malloc(MAX_PATH);
-    sprintf(control->temp_c_name, "%s\\src.c", tempDir);
+    info->tempC = malloc(MAX_PATH);
+    sprintf(info->tempC, "%s\\src.c", tempDir);
 
     if (doPrint)
-        printf("TEMP_C_PATH: %s\n", control->temp_c_name);
+        printf("TEMP_C_PATH: %s\n", info->tempC);
 }
 
-int before_close(control_t *control)
+int beforeClose(InfoUnit *control)
 {
-    if (remove(control->temp_frt_name) != 0)
+    if (remove(control->tempFRT) != 0)
     {
-        logi(ERR, "Could not delete the temporary frt file");
+        logMessage(ERR, "Could not delete the temporary frt file");
         return 1;
     }
-    if (remove(control->temp_c_name) != 0)
+    if (remove(control->tempC) != 0)
     {
-        logi(ERR, "Could not delete the C file");
+        logMessage(ERR, "Could not delete the C file");
         return 1;
     }
 
-    free(control->file_name);
+    free(control->inputFRT);
 
     return 0;
 }
 
-char *get_options(int argc, char *argv[])
+char *getOptions(int argc, char *argv[])
 {
     char *options = malloc(MAX_PATH);
     options[0] = '\0';
@@ -105,42 +105,42 @@ char *get_options(int argc, char *argv[])
     return options;
 }
 
-char *get_file_name(int argc, char *argv[])
+char *getInputFile(int argc, char *argv[])
 {
-    char *file_name = malloc(MAX_PATH);
-    file_name[0] = '\0';
+    char *inputFile = malloc(MAX_PATH);
+    inputFile[0] = '\0';
 
     for (int i = 1; i < argc; i++)
     {
         if (argv[i][0] != '-')
         {
-            strcpy(file_name, argv[i]);
+            strcpy(inputFile, argv[i]);
             break;
         }
     }
 
-    return file_name;
+    return inputFile;
 }
 
-void print(control_t *control, const char *message, size_t tab_count)
+void print(InfoUnit *info, const char *message, size_t tabCount)
 {
-    static int print_to_stdout = -1;
-    if (print_to_stdout == -1)
-        print_to_stdout = (strstr(control->options, "-v") != NULL);
+    static int doPrint = -1;
+    if (doPrint == -1)
+        doPrint = (strstr(info->options, "-v") != NULL);
 
-    char *messageWithTabs = malloc(strlen(message) + tab_count + 1);
-    strcpy(messageWithTabs + tab_count, message);
-    for (size_t i = 0; i < tab_count; i++)
+    char *messageWithTabs = malloc(strlen(message) + tabCount + 1);
+    strcpy(messageWithTabs + tabCount, message);
+    for (size_t i = 0; i < tabCount; i++)
         messageWithTabs[i] = '\t';
 
-    fprintf(control->cfd, messageWithTabs);
-    if (print_to_stdout)
+    fprintf(info->cFD, messageWithTabs);
+    if (doPrint)
         fprintf(stdout, messageWithTabs);
 
     free(messageWithTabs);
 }
 
-void logi(LogLevel level, const char *message)
+void logMessage(LogLevel level, const char *message)
 {
     if (level == WARNING)
         fprintf(stderr, "[Warning]: %s\n", message);
@@ -148,16 +148,16 @@ void logi(LogLevel level, const char *message)
         fprintf(stderr, "[Error]: %s\n", message);
 }
 
-size_t getInt(control_t *control)
+size_t getInt(InfoUnit *info)
 {
     char c;
     size_t num = 0;
-    while ((c = fgetc(control->frtfd)) != '|')
+    while ((c = fgetc(info->frtFD)) != '|')
     {
         if (c < '0' || c > '9')
         {
             sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over; expecting a digit or \'|\'\n", c, logger.row, logger.col);
-            logi(ERR, logger.buffer);
+            logMessage(ERR, logger.buffer);
             break;
         }
         else
@@ -166,75 +166,75 @@ size_t getInt(control_t *control)
     return num;
 }
 
-int make_c_code(control_t *control)
+int writeC(InfoUnit *info)
 {
-    print(control, "#include <stdio.h>\n\n", 0);
-    print(control, "#define max (ptr - array > highest ? ptr - array : highest)\n", 0);
-    print(control, "#define min (ptr - array < lowest ? ptr - array : lowest)\n\n", 0);
-    print(control, "int main()\n{\n\tint array[1024] = {0};\n\tint *ptr = array + 511;\n\n", 0);
-    print(control, "\tint lowest = ptr - array, highest = ptr - array;\n", 0);
+    print(info, "#include <stdio.h>\n\n", 0);
+    print(info, "#define max (ptr - array > highest ? ptr - array : highest)\n", 0);
+    print(info, "#define min (ptr - array < lowest ? ptr - array : lowest)\n\n", 0);
+    print(info, "int main()\n{\n\tint array[1024] = {0};\n\tint *ptr = array + 511;\n\n", 0);
+    print(info, "\tint lowest = ptr - array, highest = ptr - array;\n", 0);
 
     char c;
-    size_t tab_count = 1;
+    size_t tabCount = 1;
     size_t num;
     char forLoop[40];
 
-    while ((c = fgetc(control->frtfd)) != EOF)
+    while ((c = fgetc(info->frtFD)) != EOF)
     {
         switch (c)
         {
         case '>':
-            print(control, "ptr++; highest = max;\n", tab_count);
+            print(info, "ptr++; highest = max;\n", tabCount);
             break;
         case '<':
-            print(control, "ptr--; lowest = min;\n", tab_count);
+            print(info, "ptr--; lowest = min;\n", tabCount);
             break;
         case '+':
-            print(control, "(*ptr)++;\n", tab_count);
+            print(info, "(*ptr)++;\n", tabCount);
             break;
         case '-':
-            print(control, "(*ptr)--;\n", tab_count);
+            print(info, "(*ptr)--;\n", tabCount);
             break;
         case '_':
-            print(control, "printf(\"%%d\\n\"*ptr);\n", tab_count);
+            print(info, "printf(\"%%d\\n\"*ptr);\n", tabCount);
             break;
         case '@':
-            print(control, "for(int i = lowest; i <= highest; i++)\n", tab_count);
-            print(control, "printf(\"%%d \", array[i]);\n", tab_count + 1);
-            print(control, "putchar(\'\\n\');\n", tab_count);
+            print(info, "for(int i = lowest; i <= highest; i++)\n", tabCount);
+            print(info, "printf(\"%%d \", array[i]);\n", tabCount + 1);
+            print(info, "putchar(\'\\n\');\n", tabCount);
             break;
         case '.':
-            print(control, "putchar((char)(*ptr));\n", tab_count);
+            print(info, "putchar((char)(*ptr));\n", tabCount);
             break;
         case '#':
-            print(control, "for(int i = lowest; i <= highest; i++)\n", tab_count);
-            print(control, "putchar((char)(array[i]));\n", tab_count + 1);
+            print(info, "for(int i = lowest; i <= highest; i++)\n", tabCount);
+            print(info, "putchar((char)(array[i]));\n", tabCount + 1);
         case '\\':
-            print(control, "putchar(\'\\n\');\n", tab_count);
+            print(info, "putchar(\'\\n\');\n", tabCount);
             break;
         case ',':
-            print(control, "scanf(\"%%d\", ptr);\n", tab_count);
+            print(info, "scanf(\"%%d\", ptr);\n", tabCount);
             break;
         case '[':
-            num = getInt(control);
+            num = getInt(info);
             sprintf(forLoop, "for(int i = 0; i < %d; i++)\n", num);
-            print(control, forLoop, tab_count);
-            print(control, "{\n", tab_count);
-            tab_count++;
+            print(info, forLoop, tabCount);
+            print(info, "{\n", tabCount);
+            tabCount++;
             break;
         case ']':
-            if (tab_count > 1)
+            if (tabCount > 1)
             {
-                print(control, "}\n", tab_count - 1);
-                tab_count--;
+                print(info, "}\n", tabCount - 1);
+                tabCount--;
             }
             else
-                logi(ERR, "Unmatched \']\' jumped over\n");
+                logMessage(ERR, "Unmatched \']\' jumped over\n");
             break;
         case '/':
-            c = fgetc(control->frtfd);
+            c = fgetc(info->frtFD);
             while (c != '\n' && c != '/' && c != EOF)
-                c = fgetc(control->frtfd);
+                c = fgetc(info->frtFD);
             break;
         case '\n':
             logger.row++;
@@ -246,63 +246,64 @@ int make_c_code(control_t *control)
             break;
         default:
             sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over\n", c, logger.row, logger.col);
-            logi(ERR, logger.buffer);
+            logMessage(ERR, logger.buffer);
             break;
         }
         logger.col++;
     }
-    while (tab_count > 1)
+    while (tabCount > 1)
     {
-        print(control, "}\n", tab_count - 1);
-        tab_count--;
-        logi(ERR, "Unmatched \'[\' closed automatically");
+        print(info, "}\n", tabCount - 1);
+        tabCount--;
+        logMessage(ERR, "Unmatched \'[\' closed automatically");
     }
 
-    print(control, "\n\treturn 0;\n}\n", 0);
+    print(info, "\n\treturn 0;\n}\n", 0);
 
-    fclose(control->frtfd);
-    fclose(control->cfd);
+    fclose(info->frtFD);
+    fclose(info->cFD);
 
     return 0;
 }
 
-int compile_command(control_t *control)
+int compileCommand(InfoUnit *info)
 {
     char command[512];
     command[0] = '\0';
 
-    char exe_file[256];
-    strcpy(exe_file, control->file_name);
-    exe_file[strlen(exe_file) - 4] = '\0';
-    strcat(exe_file, ".exe");
+    char programExec[256];
+    strcpy(programExec, info->inputFRT);
+    programExec[strlen(programExec) - 4] = '\0';
+    strcat(programExec, ".exe");
 
     strcpy(command, "gcc ");
     strcat(command, "-o ");
-    strcat(command, exe_file);
+    strcat(command, programExec);
     strcat(command, " ");
-    strcat(command, control->temp_c_name);
+    strcat(command, info->tempC);
 
     if (system(command) != 0)
     {
-        logi(ERR, "Could not compile the temporary C file");
+        logMessage(ERR, "Could not compile the temporary C file");
         return 1;
     }
+
     return 0;
 }
 
-int run(const char *file_name)
+int executeProgram(const char *inputFile)
 {
     char command[512];
     command[0] = '\0';
 
-    strcpy(command, file_name);
+    strcpy(command, inputFile);
     command[strlen(command) - 4] = '\0';
 
     strcat(command, ".exe");
 
     if (system(command) != 0)
     {
-        logi(ERR, "Could not run the executable");
+        logMessage(ERR, "Could not run the executable");
         return 1;
     }
 
