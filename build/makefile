@@ -22,7 +22,7 @@ temp\%.o: src\%.c $(HDRS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean: $(OBJS)
-	del $(OBJS)
+	del ..\src\$(OBJS)
 	del ..\temp\src.c
 	del ..\temp\src.frt
 	
