@@ -18,7 +18,6 @@ public:
 public:
     Logger(std::ostream &logStream);
     Logger(std::ostream &&logStream);
-    Logger(const std::string &logFilePath);
     ~Logger() = default;
 
     Logger(const Logger &) = delete;
@@ -33,5 +32,5 @@ public:
     void Log(const std::string &message, bool logPosition = true);
 
 private:
-    std::unique_ptr<std::ostream> logStream;
+    std::ostream &logStream;
 };

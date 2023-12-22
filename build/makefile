@@ -1,13 +1,13 @@
 # Makefile
 
 # Compiler
-CC := gcc
+CC := g++
 # Compiler flags
-CFLAGS := -Wall -Wextra -pedantic -std=c11
+CFLAGS := -Wall -Wextra -pedantic
 # Source files
-SRCS := ..\src\func.c
+SRCS := ..\src\func.cpp
 # Header files
-HDRS := ..\include\func.h
+HDRS := ..\include\funcpp.h
 # Object files
 OBJS := $(SRCS:.c=.o)
 # Target
@@ -15,7 +15,7 @@ TARGET := mfrt
 
 # Targets
 all: $(OBJS)
-	$(CC) $(CFLAGS) -o ..\bin\$(TARGET) ..\src\$(TARGET).c $(OBJS)
+	$(CC) $(CFLAGS) -o ..\bin\$(TARGET) ..\src\$(TARGET).c $(OBJS) $(HDRS)
 	make clean
 
 temp\%.o: src\%.c $(HDRS)
