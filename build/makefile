@@ -1,13 +1,13 @@
 # Makefile
 
 # Compiler
-CC := g++
+CC := gcc
 # Compiler flags
 CFLAGS := -Wall -Wextra -pedantic
 # Source files
-SRCS := ..\src\func.cpp
+SRCS := ..\src\func.c
 # Header files
-HDRS := ..\include\funcpp.h
+HDRS := ..\include\func.h
 # Object files
 OBJS := $(SRCS:.c=.o)
 # Target
