@@ -8,7 +8,7 @@ mfrt::InfoBlock::InfoBlock(int argc, char* argv[], bool doLog)
     this->SetOptions(argc, argv);
 
     char* execPath = new char[MAX_PATH];
-    GetModuleFileName(NULL, execPath, sizeof(execPath));
+    GetModuleFileNameA(NULL, execPath, MAX_PATH);
     std::string tempDirPath{ std::move(execPath) };
     if (tempDirPath.empty())
         throw std::exception{ "Could not get the module file name" };
@@ -21,7 +21,7 @@ mfrt::InfoBlock::InfoBlock(int argc, char* argv[], bool doLog)
     if ((pos = tempDirPath.find('\\')) != std::string::npos)
         tempDirPath.erase(pos, tempDirPath.length() - pos);
     else
-        throw std::exception{ "Character \'\\\' not found" };
+        throw std::runtime_error{ "Character \'\\\' not found" };
     if ((pos = tempDirPath.find('\\')) != std::string::npos)
         tempDirPath.erase(pos, tempDirPath.length() - pos);
     else
