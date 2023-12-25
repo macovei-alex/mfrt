@@ -2,17 +2,17 @@
 
 #include <format>
 
-Logger::Logger(std::ostream &logStream) : logStream{logStream}, currentPosition{0, 0}
+Logger::Logger(std::ostream& logStream) : logStream{ logStream }, currentPosition{ 0, 0 }
 {
     /* empty */
 }
 
-Logger::Logger(std::ostream &&logStream) : logStream{logStream}, currentPosition{0, 0}
+Logger::Logger(std::ostream&& logStream) : logStream{ logStream }, currentPosition{ 0, 0 }
 {
     /* empty */
 }
 
-void Logger::Log(LogLevel level, const std::string &message, bool logPosition)
+void Logger::Log(LogLevel level, const std::string& message, bool logPosition)
 {
     std::string logLevelStr{};
     if (level == LogLevel::Info)
@@ -28,7 +28,7 @@ void Logger::Log(LogLevel level, const std::string &message, bool logPosition)
         logStream << std::format("[{}] {}\n", logLevelStr, message);
 }
 
-void Logger::Log(const std::string &message, bool logPosition)
+void Logger::Log(const std::string& message, bool logPosition)
 {
     Log(LogLevel::Error, message, logPosition);
 }

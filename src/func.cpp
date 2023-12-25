@@ -3,7 +3,7 @@
 #include <iostream>
 #include <format>
 
-size_t mfrt::GetInt(InfoBlock &info, Logger &logger)
+size_t mfrt::GetInt(InfoBlock& info, Logger& logger)
 {
     char c;
     size_t num = 0;
@@ -23,13 +23,13 @@ size_t mfrt::GetInt(InfoBlock &info, Logger &logger)
     return num;
 }
 
-void mfrt::Print(InfoBlock &info, const std::string &message, size_t tabCount)
+void mfrt::Print(InfoBlock& info, const std::string& message, size_t tabCount)
 {
     static int doPrint = -1;
     if (doPrint == -1)
         doPrint = (info.GetOptions().find("-v") != std::string::npos);
 
-    std::string messageWithTabs{message};
+    std::string messageWithTabs{ message };
     for (size_t i = 0; i < tabCount; i++)
         messageWithTabs.insert(0, "\t");
 
@@ -38,7 +38,7 @@ void mfrt::Print(InfoBlock &info, const std::string &message, size_t tabCount)
         std::cout << messageWithTabs;
 }
 
-int mfrt::WriteCpp(InfoBlock &info, Logger &logger)
+int mfrt::WriteCpp(InfoBlock& info, Logger& logger)
 {
     Print(info, "#include <stdio.h>\n\n", 0);
     Print(info, "#define max (ptr - array > highest ? ptr - array : highest)\n", 0);
@@ -137,23 +137,23 @@ int mfrt::WriteCpp(InfoBlock &info, Logger &logger)
     return 0;
 }
 
-int mfrt::CompileCommand(InfoBlock &info)
+int mfrt::CompileCommand(InfoBlock& info)
 {
-    std::string programExec{std::move(info.GetExecName())};
-    std::string command{std::format("g++ -o {} {}", info.GetInputFrt(), programExec)};
+    std::string programExec{ std::move(info.GetExecName()) };
+    std::string command{ std::format("g++ -o {} {}", info.GetInputFrt(), programExec) };
 
     if (system(command.c_str()) != 0)
-        throw std::exception{"Could not compile the temporary C++ file"};
+        throw std::exception{ "Could not compile the temporary C++ file" };
 
     return 0;
 }
 
-int mfrt::ExecuteProgram(InfoBlock &info)
+int mfrt::ExecuteProgram(InfoBlock& info)
 {
-    std::string command{std::move(info.GetExecName())};
+    std::string command{ std::move(info.GetExecName()) };
 
     if (system(command.c_str()) != 0)
-        throw std::exception{"Could not run the executable"};
+        throw std::exception{ "Could not run the executable" };
 
     return 0;
 }

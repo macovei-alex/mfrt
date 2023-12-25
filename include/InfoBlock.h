@@ -8,10 +8,10 @@ namespace mfrt
     {
     public:
         InfoBlock() = default;
-        InfoBlock(int argc, char *argv[], bool doLog = false);
+        InfoBlock(int argc, char* argv[], bool doLog = false);
 
-        std::ifstream &GetFrtIn();
-        std::ofstream &GetCOut();
+        std::ifstream& GetFrtIn();
+        std::ofstream& GetCOut();
         std::string GetOptions() const;
         std::string GetTempC() const;
         std::string GetTempFrt() const;
@@ -25,6 +25,6 @@ namespace mfrt
         std::string options;
 
     private:
-        void SetOptions(int argc, char *argv[]);
+        void SetOptions(int argc, char* argv[]);
     };
 }

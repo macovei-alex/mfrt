@@ -16,21 +16,21 @@ public:
     };
 
 public:
-    Logger(std::ostream &logStream);
-    Logger(std::ostream &&logStream);
+    Logger(std::ostream& logStream);
+    Logger(std::ostream&& logStream);
     ~Logger() = default;
 
-    Logger(const Logger &) = delete;
-    Logger(Logger &&) = delete;
-    Logger &operator=(const Logger &) = delete;
-    Logger &operator=(Logger &&) = delete;
+    Logger(const Logger&) = delete;
+    Logger(Logger&&) = delete;
+    Logger& operator=(const Logger&) = delete;
+    Logger& operator=(Logger&&) = delete;
 
 public:
     Position currentPosition;
 
-    void Log(LogLevel level, const std::string &message, bool logPosition = true);
-    void Log(const std::string &message, bool logPosition = true);
+    void Log(LogLevel level, const std::string& message, bool logPosition = true);
+    void Log(const std::string& message, bool logPosition = true);
 
 private:
-    std::ostream &logStream;
+    std::ostream& logStream;
 };

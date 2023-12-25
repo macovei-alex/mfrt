@@ -3,9 +3,9 @@
 #include <string.h>
 #include <windows.h>
 
-Logger logger = {0, 0, ""};
+Logger logger = { 0, 0, "" };
 
-int setup(InfoUnit *info)
+int setup(InfoUnit* info)
 {
     setPaths(info, false);
 
@@ -36,16 +36,16 @@ int setup(InfoUnit *info)
     return 0;
 }
 
-void setPaths(InfoUnit *info, bool doPrint)
+void setPaths(InfoUnit* info, bool doPrint)
 {
-    char execPath[MAX_PATH] = {0};
+    char execPath[MAX_PATH] = { 0 };
     GetModuleFileName(NULL, execPath, sizeof(execPath));
 
     if (doPrint)
         printf("EXEC_PATH: %s\n", execPath);
 
     // Remove the executable name to get the directory
-    char *lastBackslash;
+    char* lastBackslash;
     if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
         *lastBackslash = '\0';
     if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
@@ -70,7 +70,7 @@ void setPaths(InfoUnit *info, bool doPrint)
         printf("TEMP_C_PATH: %s\n", info->tempC);
 }
 
-int beforeClose(InfoUnit *control)
+int beforeClose(InfoUnit* control)
 {
     if (remove(control->tempFRT) != 0)
     {
@@ -88,9 +88,9 @@ int beforeClose(InfoUnit *control)
     return 0;
 }
 
-char *getOptions(int argc, char *argv[])
+char* getOptions(int argc, char* argv[])
 {
-    char *options = malloc(MAX_PATH);
+    char* options = malloc(MAX_PATH);
     options[0] = '\0';
 
     for (int i = 1; i < argc; i++)
@@ -105,9 +105,9 @@ char *getOptions(int argc, char *argv[])
     return options;
 }
 
-char *getInputFile(int argc, char *argv[])
+char* getInputFile(int argc, char* argv[])
 {
-    char *inputFile = malloc(MAX_PATH);
+    char* inputFile = malloc(MAX_PATH);
     inputFile[0] = '\0';
 
     for (int i = 1; i < argc; i++)
@@ -122,13 +122,13 @@ char *getInputFile(int argc, char *argv[])
     return inputFile;
 }
 
-void print(InfoUnit *info, const char *message, size_t tabCount)
+void print(InfoUnit* info, const char* message, size_t tabCount)
 {
     static int doPrint = -1;
     if (doPrint == -1)
         doPrint = (strstr(info->options, "-v") != NULL);
 
-    char *messageWithTabs = malloc(strlen(message) + tabCount + 1);
+    char* messageWithTabs = malloc(strlen(message) + tabCount + 1);
     strcpy(messageWithTabs + tabCount, message);
     for (size_t i = 0; i < tabCount; i++)
         messageWithTabs[i] = '\t';
@@ -140,7 +140,7 @@ void print(InfoUnit *info, const char *message, size_t tabCount)
     free(messageWithTabs);
 }
 
-void logMessage(LogLevel level, const char *message)
+void logMessage(LogLevel level, const char* message)
 {
     if (level == WARNING)
         fprintf(stderr, "[Warning]: %s\n", message);
@@ -148,7 +148,7 @@ void logMessage(LogLevel level, const char *message)
         fprintf(stderr, "[Error]: %s\n", message);
 }
 
-size_t getInt(InfoUnit *info)
+size_t getInt(InfoUnit* info)
 {
     char c;
     size_t num = 0;
@@ -166,7 +166,7 @@ size_t getInt(InfoUnit *info)
     return num;
 }
 
-int writeC(InfoUnit *info)
+int writeC(InfoUnit* info)
 {
     print(info, "#include <stdio.h>\n\n", 0);
     print(info, "#define max (ptr - array > highest ? ptr - array : highest)\n", 0);
@@ -267,7 +267,7 @@ int writeC(InfoUnit *info)
     return 0;
 }
 
-int compileCommand(InfoUnit *info)
+int compileCommand(InfoUnit* info)
 {
     char command[512];
     command[0] = '\0';
@@ -292,7 +292,7 @@ int compileCommand(InfoUnit *info)
     return 0;
 }
 
-int executeProgram(const char *inputFile)
+int executeProgram(const char* inputFile)
 {
     char command[512];
     command[0] = '\0';
