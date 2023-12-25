@@ -156,7 +156,7 @@ size_t getInt(InfoUnit *info)
     {
         if (c < '0' || c > '9')
         {
-            sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over; expecting a digit or \'|\'\n", c, logger.row, logger.col);
+            sprintf(logger.buffer, "Invalid character %c at row%lld, col:%lld jumped over; expecting a digit or \'|\'\n", c, logger.row, logger.col);
             logMessage(ERR, logger.buffer);
             break;
         }
@@ -196,11 +196,11 @@ int writeC(InfoUnit *info)
             print(info, "(*ptr)--;\n", tabCount);
             break;
         case '_':
-            print(info, "printf(\"%%d\\n\"*ptr);\n", tabCount);
+            print(info, "printf(\"%%lld\\n\"*ptr);\n", tabCount);
             break;
         case '@':
             print(info, "for(int i = lowest; i <= highest; i++)\n", tabCount);
-            print(info, "printf(\"%%d \", array[i]);\n", tabCount + 1);
+            print(info, "printf(\"%%lld \", array[i]);\n", tabCount + 1);
             print(info, "putchar(\'\\n\');\n", tabCount);
             break;
         case '.':
@@ -209,6 +209,7 @@ int writeC(InfoUnit *info)
         case '#':
             print(info, "for(int i = lowest; i <= highest; i++)\n", tabCount);
             print(info, "putchar((char)(array[i]));\n", tabCount + 1);
+            break;
         case '\\':
             print(info, "putchar(\'\\n\');\n", tabCount);
             break;
@@ -217,7 +218,7 @@ int writeC(InfoUnit *info)
             break;
         case '[':
             num = getInt(info);
-            sprintf(forLoop, "for(int i = 0; i < %d; i++)\n", num);
+            sprintf(forLoop, "for(int i = 0; i < %lld; i++)\n", num);
             print(info, forLoop, tabCount);
             print(info, "{\n", tabCount);
             tabCount++;
@@ -245,7 +246,7 @@ int writeC(InfoUnit *info)
         case ' ':
             break;
         default:
-            sprintf(logger.buffer, "Invalid character %c at row:%d, col:%d jumped over\n", c, logger.row, logger.col);
+            sprintf(logger.buffer, "Invalid character %c at row:%lld, col:%lld jumped over\n", c, logger.row, logger.col);
             logMessage(ERR, logger.buffer);
             break;
         }
