@@ -18,7 +18,7 @@ OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 # Temporary directory
 TEMP_DIR := temp
 # Target
-TARGET := $(BIN_DIR)/mfrt
+TARGET := $(BIN_DIR)\mfrt
 
 # Compiler
 CC := gcc
