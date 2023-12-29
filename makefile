@@ -18,7 +18,7 @@ OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 # Temporary directory
 TEMP_DIR := temp
 # Target
-TARGET := $(BIN_DIR)\mfrt
+TARGET := $(BIN_DIR)/mfrt
 
 # Compiler
 CC := gcc
@@ -37,8 +37,8 @@ obj/%.o: src/%.c
 
 clean:
 	@if exist $(OBJ_DIR)\*.o del /Q $(OBJ_DIR)\*.o
-	@if exist $(TEMP_DIR)\src.c del /Q $(TEMP_DIR)\src.c
-	@if exist $(TEMP_DIR)\src.frt del /Q $(TEMP_DIR)\src.frt
+	@if exist $(TEMP_DIR)/src.c del /Q $(TEMP_DIR)/src.c
+	@if exist $(TEMP_DIR)/src.frt del /Q $(TEMP_DIR)/src.frt
 	
 remove: clean
 	@if exist $(TARGET) del /Q $(TARGET)
