@@ -1,25 +1,21 @@
-#ifndef FUNC_H
-#define FUNC_H
+#pragma once
 
 #include <stdio.h>
 #include <stdbool.h>
 
-typedef struct InfoUnit
-{
+typedef struct InfoUnit {
     FILE* frtFD, * cFD;
     char* tempFRT, * tempC;
     char* inputFRT;
     char* options;
 } InfoUnit;
 
-typedef struct Logger
-{
+typedef struct Logger {
     size_t row, col;
     char buffer[1024];
 } Logger;
 
-typedef enum LogLevel
-{
+typedef enum LogLevel {
     WARNING,
     ERR
 } LogLevel;
@@ -35,5 +31,3 @@ size_t getInt(InfoUnit* info);
 int writeC(InfoUnit* info);
 int compileCommand(InfoUnit* info);
 int executeProgram(const char* inputFile);
-
-#endif // FUNC_H

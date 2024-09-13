@@ -3,31 +3,31 @@
 #include <string.h>
 #include <windows.h>
 
-Logger logger = { 0, 0, "" };
+Logger logger = {
+    .row = 0,
+    .col = 0,
+    .buffer = ""
+};
 
-int setup(InfoUnit* info)
-{
+int setup(InfoUnit* info) {
     setPaths(info, false);
 
     char command[512];
-    sprintf(command, "copy %s %s", info->inputFRT, info->tempFRT);
+    sprintf(command, "copy %s %s >nul", info->inputFRT, info->tempFRT);
 
-    if (system(command) != 0)
-    {
+    if (system(command) != 0) {
         logMessage(ERR, "Could not copy the frt file");
         return 1;
     }
 
     info->frtFD = fopen(info->tempFRT, "rb");
-    if (info->frtFD == NULL)
-    {
+    if (info->frtFD == NULL) {
         logMessage(ERR, "Could not open the copied file");
         return 1;
     }
 
     info->cFD = fopen(info->tempC, "wb");
-    if (info->cFD == NULL)
-    {
+    if (info->cFD == NULL) {
         logMessage(ERR, "Could not open the C file");
         fclose(info->frtFD);
         return 1;
@@ -36,49 +36,51 @@ int setup(InfoUnit* info)
     return 0;
 }
 
-void setPaths(InfoUnit* info, bool doPrint)
-{
+void setPaths(InfoUnit* info, bool doPrint) {
     char execPath[MAX_PATH] = { 0 };
     GetModuleFileName(NULL, execPath, sizeof(execPath));
 
-    if (doPrint)
+    if (doPrint) {
         printf("EXEC_PATH: %s\n", execPath);
+    }
 
     // Remove the executable name to get the directory
     char* lastBackslash;
-    if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
+    if ((lastBackslash = strrchr(execPath, '\\')) != NULL) {
         *lastBackslash = '\0';
-    if ((lastBackslash = strrchr(execPath, '\\')) != NULL)
+    }
+    if ((lastBackslash = strrchr(execPath, '\\')) != NULL) {
         *lastBackslash = '\0';
+    }
 
     char tempDir[MAX_PATH];
     sprintf(tempDir, "%s\\temp", execPath);
 
-    if (doPrint)
+    if (doPrint) {
         printf("TEMP_DIR: %s\n", tempDir);
+    }
 
     info->tempFRT = malloc(MAX_PATH);
     sprintf(info->tempFRT, "%s\\src.frt", tempDir);
 
-    if (doPrint)
+    if (doPrint) {
         printf("TEMP_FRT_PATH: %s\n", info->tempFRT);
+    }
 
     info->tempC = malloc(MAX_PATH);
     sprintf(info->tempC, "%s\\src.c", tempDir);
 
-    if (doPrint)
+    if (doPrint) {
         printf("TEMP_C_PATH: %s\n", info->tempC);
+    }
 }
 
-int beforeClose(InfoUnit* control)
-{
-    if (remove(control->tempFRT) != 0)
-    {
+int beforeClose(InfoUnit* control) {
+    if (remove(control->tempFRT) != 0) {
         logMessage(ERR, "Could not delete the temporary frt file");
         return 1;
     }
-    if (remove(control->tempC) != 0)
-    {
+    if (remove(control->tempC) != 0) {
         logMessage(ERR, "Could not delete the C file");
         return 1;
     }
@@ -88,15 +90,12 @@ int beforeClose(InfoUnit* control)
     return 0;
 }
 
-char* getOptions(int argc, char* argv[])
-{
+char* getOptions(int argc, char* argv[]) {
     char* options = malloc(MAX_PATH);
     options[0] = '\0';
 
-    for (int i = 1; i < argc; i++)
-    {
-        if (argv[i][0] == '-')
-        {
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') {
             strcat(options, argv[i]);
             strcat(options, " ");
         }
@@ -105,15 +104,12 @@ char* getOptions(int argc, char* argv[])
     return options;
 }
 
-char* getInputFile(int argc, char* argv[])
-{
+char* getInputFile(int argc, char* argv[]) {
     char* inputFile = malloc(MAX_PATH);
     inputFile[0] = '\0';
 
-    for (int i = 1; i < argc; i++)
-    {
-        if (argv[i][0] != '-')
-        {
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] != '-') {
             strcpy(inputFile, argv[i]);
             break;
         }
@@ -122,52 +118,52 @@ char* getInputFile(int argc, char* argv[])
     return inputFile;
 }
 
-void print(InfoUnit* info, const char* message, size_t tabCount)
-{
+void print(InfoUnit* info, const char* message, size_t tabCount) {
     static int doPrint = -1;
-    if (doPrint == -1)
+    if (doPrint == -1) {
         doPrint = (strstr(info->options, "-v") != NULL);
+    }
 
     char* messageWithTabs = malloc(strlen(message) + tabCount + 1);
     strcpy(messageWithTabs + tabCount, message);
-    for (size_t i = 0; i < tabCount; i++)
+    for (size_t i = 0; i < tabCount; i++) {
         messageWithTabs[i] = '\t';
+    }
 
     fprintf(info->cFD, messageWithTabs);
-    if (doPrint)
+    if (doPrint) {
         fprintf(stdout, messageWithTabs);
+    }
 
     free(messageWithTabs);
 }
 
-void logMessage(LogLevel level, const char* message)
-{
-    if (level == WARNING)
+void logMessage(LogLevel level, const char* message) {
+    if (level == WARNING) {
         fprintf(stderr, "[Warning]: %s\n", message);
-    else if (level == ERR)
+    }
+    else if (level == ERR) {
         fprintf(stderr, "[Error]: %s\n", message);
+    }
 }
 
-size_t getInt(InfoUnit* info)
-{
+size_t getInt(InfoUnit* info) {
     char c;
     size_t num = 0;
-    while ((c = fgetc(info->frtFD)) != '|')
-    {
-        if (c < '0' || c > '9')
-        {
+    while ((c = fgetc(info->frtFD)) != '|') {
+        if (c < '0' || c > '9') {
             sprintf(logger.buffer, "Invalid character %c at row%lld, col:%lld jumped over; expecting a digit or \'|\'\n", c, logger.row, logger.col);
             logMessage(ERR, logger.buffer);
             break;
         }
-        else
+        else {
             num = num * 10 + (c - '0');
+        }
     }
     return num;
 }
 
-int writeC(InfoUnit* info)
-{
+int writeC(InfoUnit* info) {
     print(info, "#include <stdio.h>\n\n", 0);
     print(info, "#define max (ptr - array > highest ? ptr - array : highest)\n", 0);
     print(info, "#define min (ptr - array < lowest ? ptr - array : lowest)\n\n", 0);
@@ -179,10 +175,8 @@ int writeC(InfoUnit* info)
     size_t num;
     char forLoop[40];
 
-    while ((c = fgetc(info->frtFD)) != EOF)
-    {
-        switch (c)
-        {
+    while ((c = fgetc(info->frtFD)) != EOF) {
+        switch (c) {
         case '>':
             print(info, "ptr++; highest = max;\n", tabCount);
             break;
@@ -252,8 +246,8 @@ int writeC(InfoUnit* info)
         }
         logger.col++;
     }
-    while (tabCount > 1)
-    {
+
+    while (tabCount > 1) {
         print(info, "}\n", tabCount - 1);
         tabCount--;
         logMessage(ERR, "Unmatched \'[\' closed automatically");
@@ -267,8 +261,7 @@ int writeC(InfoUnit* info)
     return 0;
 }
 
-int compileCommand(InfoUnit* info)
-{
+int compileCommand(InfoUnit* info) {
     char command[512];
     command[0] = '\0';
 
@@ -283,8 +276,7 @@ int compileCommand(InfoUnit* info)
     strcat(command, " ");
     strcat(command, info->tempC);
 
-    if (system(command) != 0)
-    {
+    if (system(command) != 0) {
         logMessage(ERR, "Could not compile the temporary C file");
         return 1;
     }
@@ -292,18 +284,15 @@ int compileCommand(InfoUnit* info)
     return 0;
 }
 
-int executeProgram(const char* inputFile)
-{
-    char command[512];
-    command[0] = '\0';
+int executeProgram(const char* inputFile) {
+    char command[512] = {};
 
     strcpy(command, inputFile);
     command[strlen(command) - 4] = '\0';
 
     strcat(command, ".exe");
 
-    if (system(command) != 0)
-    {
+    if (system(command) != 0) {
         logMessage(ERR, "Could not run the executable");
         return 1;
     }
